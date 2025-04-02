@@ -7,4 +7,6 @@
 // the register file, access memory, select ALU inputs, and update the PC.
 // It acts as the decision-making unit that interprets the instruction type
 // and directs the processor accordingly.
+//
+// File Contributor(s):
 //-----------------------------------------------------------------------------

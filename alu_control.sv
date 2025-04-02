@@ -6,4 +6,6 @@
 // signal to select the specific operation the ALU should perform (e.g., add,
 // subtract, AND, OR, etc.). This enables fine-grained control of ALU behavior
 // for both R-type and I-type instructions.
+//
+// File Contributor(s):
 //-----------------------------------------------------------------------------

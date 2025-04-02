@@ -6,6 +6,8 @@
 // from the memory module. After the instruction is decoded and executed,
 // the PC is updated — usually to PC + 4, or to a new address if the instruction
 // is a branch or jump — so that it points to the next instruction to execute.
+//
+// File Contributor(s): Ishan Porwal
 //-----------------------------------------------------------------------------
 module program_counter (
     input logic clk,

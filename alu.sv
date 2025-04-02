@@ -6,4 +6,6 @@
 // 32-bit operands and computes the selected operation (e.g., add, sub, and, or, slt, etc.).
 // The result is used for register write-back, memory addressing, or branch decision-making.
 // The ALU also outputs a zero flag, which is used by the branch logic.
+//
+// File Contributor(s):
 //-----------------------------------------------------------------------------

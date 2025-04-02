@@ -6,4 +6,6 @@
 // instruction using the opcode, slices out the appropriate immediate bits from
 // the instruction, and sign-extends the result to 32 bits. The output is used
 // in operations such as ALU computation, memory addressing, and PC updates.
+//
+// File Contributor(s):
 //-----------------------------------------------------------------------------

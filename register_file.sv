@@ -6,4 +6,6 @@
 // write port (rd). Register x0 is hardwired to 0 and cannot be modified.
 // The register file is used to store temporary values and intermediate results
 // during instruction execution.
+//
+// File Contributor(s):
 //-----------------------------------------------------------------------------
