@@ -3,7 +3,7 @@
 //
 // This module implements a 32x32-bit register file for the RV32I architecture.
 // It supports two synchronous read ports (rs1 and rs2) and one synchronous
-// write port (rd) with a write enable and a read enable. Register x0 is
+// write port (rd) with a write enable controlling all. Register x0 is
 // hardwired to 0 and cannot be modified. The register file is used to store
 // temporary values and intermediate results during instruction execution.
 //
@@ -19,7 +19,6 @@ module RegisterFile #(
 )(
     input logic clk,
     input logic WEn,                                // write enable
-    input logic REn,                                // read enable
     input logic [idx_width-1:0] rs1, rs2, rd,       // r/w reg addresses
     input logic [data_width-1:0] rdv,               // destination register value
     output logic [data_width-1:0] rs1v, rs2v        // register data
@@ -28,13 +27,9 @@ module RegisterFile #(
     logic [data_width-1:0] regs[num_reg];           // register array
 
     always_ff @(posedge clk) begin
-        // writing to destination register
         if (WEn && rd != 0) begin                   // never writing to register x0
-            regs[rd] <= rdv;
-        end
-
-        // reading rs1 and rs2
-        if (REn) begin
+            regs[rd] <= rdv;                        // writing to destination register
+            // reading rs1 and rs2
             rs1v <= (rs1 == 0) ? '0 : regs[rs1];
             rs2v <= (rs2 == 0) ? '0 : regs[rs2];
         end
