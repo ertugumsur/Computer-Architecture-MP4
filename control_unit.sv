@@ -1,12 +1,14 @@
 //-----------------------------------------------------------------------------
 // Main Control Unit
 //
-// This module takes the 7-bit opcode field from a decoded RV32I instruction
-// and generates the necessary control signals for the datapath. These signals
-// determine how the instruction is executed, including whether to write to
-// the register file, access memory, select ALU inputs, and update the PC.
-// It acts as the decision-making unit that interprets the instruction type
-// and directs the processor accordingly.
+// Implements a finite state machine (FSM) that sequences the processor through
+// the multicycle stages: Fetch, Decode, Execute, Memory, and Writeback. Based
+// on the 7-bit opcode from the decoded instruction and the current state,
+// this module generates the control signals that guide the datapath — including
+// register file writes, ALU source selection, memory access, and PC updates.
 //
-// File Contributor(s):
+// Used In: All stages
+//
+// File Contributor(s): 
 //-----------------------------------------------------------------------------
+

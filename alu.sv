@@ -7,5 +7,23 @@
 // The result is used for register write-back, memory addressing, or branch decision-making.
 // The ALU also outputs a zero flag, which is used by the branch logic.
 //
-// File Contributor(s):
+// Used In: Execute
+//
+// File Contributor(s): Ahan Trivedi
 //-----------------------------------------------------------------------------
+
+module alu(
+    input logic [31:0] operand_a, // First operand
+    input logic [31:0] operand_b, // Second operand
+    input logic [3:0] alu_control, // Control signal to determine operation to perform
+    output logic [31:0] result, // Result
+    output logic zero // Zero is a one bit output
+);
+    always_comb begin
+        case (alu_control)
+            4'b0000: result = operand_a + operand_b; // ADD
+            4'b0001: result = operand_a - operand_b; // SUB
+            4'b0010: result = operand_a & operand_b; // AND
+            4'b0011: result = operand_a | operand_b; // OR
+            4'b0100: result = operand_a ^ operand_b; // XOR
+            4'b0101: result = ($signed(operand_a) < $signed(operand_b))

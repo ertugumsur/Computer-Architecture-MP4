@@ -8,5 +8,7 @@
 // is met, it asserts the branch_taken signal, which is used by the top-level
 // module to update the PC to the branch target address.
 //
+// Used In: Execute
+//
 // File Contributor(s):
 //-----------------------------------------------------------------------------

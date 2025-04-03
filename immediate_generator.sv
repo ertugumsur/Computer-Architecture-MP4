@@ -7,5 +7,7 @@
 // the instruction, and sign-extends the result to 32 bits. The output is used
 // in operations such as ALU computation, memory addressing, and PC updates.
 //
+// Used In: Deocde, Execute
+//
 // File Contributor(s):
 //-----------------------------------------------------------------------------
