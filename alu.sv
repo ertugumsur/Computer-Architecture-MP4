@@ -26,4 +26,15 @@ module alu(
             4'b0010: result = operand_a & operand_b; // AND
             4'b0011: result = operand_a | operand_b; // OR
             4'b0100: result = operand_a ^ operand_b; // XOR
-            4'b0101: result = ($signed(operand_a) < $signed(operand_b))
+            4'b0101: result = ($signed(operand_a) < $signed(operand_b)) ? 32'd1 : 32'd0; // SLT
+            4'b0110: result = (operand_a < operand_b) ? 32'd1 : 32'd0; // SLTU
+            4'b0111: result = operand_a << operand_b[4:0]; // SLL
+            4'b1000: result = operand_a >> operand_b[4:0]; // SRL
+            4'b1001: result = $signed(operand_a) >>> operand_b[4:0]; // SRA
+            default: result = 32'b0;  // Default case
+        endcase
+    end
+
+    assign zero = (result == 32'b0); // Used for branch decisions.
+
+endmodule
