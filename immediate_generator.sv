@@ -9,5 +9,9 @@
 //
 // Used In: Deocde, Execute
 //
-// File Contributor(s):
+// File Contributor(s): Ahan Trivedi
 //-----------------------------------------------------------------------------
+module immediate_generator(
+    input logic [31:0] instruction // Takes a 32 bit instruction from memory
+    output logic [31:0] imme_out // Outputs a 32 bit sign extended immediate to be used in ALU or PC offset
+);
