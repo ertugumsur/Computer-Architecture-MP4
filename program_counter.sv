@@ -13,21 +13,29 @@
 //-----------------------------------------------------------------------------
 
 module program_counter (
-    input logic clk,
-    input logic reset,
-    input logic select,
-    input logic [31:0] immediate,       // to store the immediate for jumps/branches
-    output logic [31:0] pc              // 32-bit program counter
+    input  logic clk,
+    input  logic reset,
+    input  logic pc_src,                // 1 for branch or JAL
+    input  logic jalr,                  // 1 for JALR
+    input  logic [31:0] immediate,       
+    input  logic [31:0] jump_target,    // target for JALR
+    output logic [31:0] pc              
 );
     always_ff @(posedge clk) begin
         if (reset) begin
-            pc <= 0;
+            pc <= 32'd0;
         end
-        else if (select) begin
+        else if (jalr) begin
+            // for a JALR, use the jump target computed by the ALU
+            pc <= jump_target;
+        end
+        else if (pc_src) begin
+            // for branch or JAL (PC-relative), update PC relative to current PC
             pc <= pc + immediate;
         end
         else begin
-            pc <= pc + 4;
+            // normally increment pc by 4
+            pc <= pc + 32'd4;
         end
     end
 endmodule

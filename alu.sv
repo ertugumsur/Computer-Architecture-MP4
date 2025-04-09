@@ -31,6 +31,7 @@ module alu(
             4'b0111: result = operand_a << operand_b[4:0]; // SLL
             4'b1000: result = operand_a >> operand_b[4:0]; // SRL
             4'b1001: result = $signed(operand_a) >>> operand_b[4:0]; // SRA
+            4'b1010: result = (operand_a + operand_b) & 32'hFFFFFFFE; // JALR
             default: result = 32'b0;  // Default case
         endcase
     end
