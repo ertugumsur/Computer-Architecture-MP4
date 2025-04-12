@@ -16,8 +16,7 @@ module alu(
     input logic [31:0] operand_a, // First operand
     input logic [31:0] operand_b, // Second operand
     input logic [3:0] alu_control, // Control signal to determine operation to perform
-    output logic [31:0] result, // Result
-    output logic zero // Zero is a one bit output
+    output logic [31:0] result // Result
 );
     always_comb begin
         case (alu_control)
@@ -35,7 +34,5 @@ module alu(
             default: result = 32'b0;  // Default case
         endcase
     end
-
-    assign zero = (result == 32'b0); // Used for branch decisions.
 
 endmodule
