@@ -17,7 +17,6 @@ module alu(
     input logic [31:0] operand_b, // Second operand
     input logic [3:0] alu_control, // Control signal to determine operation to perform
     output logic [31:0] result, // Result
-    output logic zero // Zero is a one bit output
 );
     always_comb begin
         case (alu_control)

@@ -12,11 +12,17 @@
 
 module instruction_register (
     input  logic clk, // Clock signal
-    input  logic reset, // Reset to clear instruction
-    input  logic enable, // Load new instruction when high
+    input  logic [1:0] ir_control // Control unit signal for Instruction Register
     input  logic [31:0] instr_in, // Instruction from memory
     output logic [31:0] instr_out // Latched instruction output
 );
+
+    logic reset, enable;
+
+    always_comb begin
+        {reset, enable} = ir_control;
+    end
+
 
     always_ff @(posedge clk or posedge reset) begin
         if (reset)

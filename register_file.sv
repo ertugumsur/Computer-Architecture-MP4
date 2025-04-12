@@ -27,12 +27,15 @@ module RegisterFile #(
     logic [data_width-1:0] regs[num_reg];           // register array
 
     always_ff @(posedge clk) begin
-        if (WEn && rd != 0) begin                   // never writing to register x0
-            regs[rd] <= rdv;                        // writing to destination register
-            // reading rs1 and rs2
-            rs1v <= (rs1 == 0) ? '0 : regs[rs1];
-            rs2v <= (rs2 == 0) ? '0 : regs[rs2];
+
+        if (WEn && rd != 0) begin
+            regs[rd] <= rdv                         // writing to destination register
         end
+    end
+
+    always_comb begin
+        rs1v <= (rs1 == 0) ? '0 : regs[rs1];
+        rs2v <= (rs2 == 0) ? '0 : regs[rs2];
     end
 
 endmodule
