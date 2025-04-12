@@ -35,6 +35,4 @@ module alu(
         endcase
     end
 
-    assign zero = (result == 32'b0); // Used for branch decisions.
-
 endmodule
