@@ -12,3 +12,70 @@
 // File Contributor(s): 
 //-----------------------------------------------------------------------------
 
+`timescale 10ns/10ns
+`include "../top.sv"
+
+module testbench;
+
+    logic clk = 0;
+    logic reset = 1;
+
+    always begin
+        #4 clk = ~clk;
+    end
+
+    // Instantiate processor top module
+    top dut (
+        .clk(clk)
+    );
+
+    // Load the program from memory init file
+    defparam dut.MEM.init_file = "tests/rv32i_test.txt";
+
+    initial begin
+        $dumpfile("processor.vcd");
+        $dumpvars(0, testbench);
+        $display("==== Starting Multicycle Processor Simulation ====");
+
+        // Reset
+        $display("[RESET]");
+        reset = 1;
+        #8;
+        reset = 0;
+        $display("Reset released\n");
+
+        // Run long enough to execute the program
+        #512;
+
+        $display("\n==== Final Register File Dump ====");
+        for (int i = 0; i < 32; i++) begin
+            $display("x%0d = 0x%08h", i, dut.REGFILE.regs[i]);
+        end
+
+        $display("\n==== Simulation Complete ====");
+        $finish;
+    end
+
+    // Per-instruction execution trace
+    always_ff @(posedge clk) begin
+        $display("PC = 0x%08h | Instr = 0x%08h",
+                 dut.pc_out, dut.instruction);
+    end
+
+    // Register file write trace
+    always_ff @(posedge clk) begin
+        if (dut.register_write_en && dut.rd_address != 0) begin
+            $display("    >> x%-2d <= 0x%08h",
+                     dut.rd_address, dut.register_file_write);
+        end
+    end
+
+    // Memory write trace
+    always_ff @(posedge clk) begin
+        if (dut.memory_write_en) begin
+            $display("    >> MEM[0x%08h] <= 0x%08h",
+                     dut.memory_write_address, dut.memory_write);
+        end
+    end
+
+endmodule
