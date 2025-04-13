@@ -49,16 +49,39 @@ module top (
     logic [31:0] immediate;
 
     // Branch Logic Output
-    logic branch_taken
+    logic branch_taken;
 
     // ALU Logic Output
-    logic [31:0] alu_result
+    logic [31:0] alu_result;
+
+    // Control Unit Logic Output
+    logic [31:0] op2, memory_write, memory_read_address, register_file_write, memory_write_address;
+    logic register_write_en, memory_write_en;
+    logic [3:0] pc_control;
+    logic [2:0] alu_control;
+    logic [1:0] ir_control;
+    
+
+    control_unit CONTROL_UNIT (
+        .instruction(instruction),
+        .branch_taken(branch_taken),
+        .register_write_en(register_write_en),
+        .pc_control(pc_control),
+        .ir_control(ir_control),
+        .alu_control(alu_control),
+        .op2(op2),
+        .memory_write(memory_write),
+        .memory_write_en(memory_write_en),
+        .memory_write_address(memory_write_address),
+        .memory_read_address(memory_read_address),
+        .register_file_write(register_file_write)
+    );
 
     // ALU
     alu ALU (
         .operand_a(rs1_value),
-        .operand_b(),
-        .alu_control(),
+        .operand_b(op2),
+        .alu_control(alu_control),
         .result(alu_result)
     );
 
@@ -90,7 +113,7 @@ module top (
     // Instruction Register
     instruction_register INSTR_REG (
         .clk(clk),
-        .ir_control(),
+        .ir_control(ir_control),
         .instr_in(memory_read_value),
         .instr_out(instruction)
     );
@@ -98,11 +121,11 @@ module top (
     // Memory
     memory MEM (
         .clk(clk),
-        .write_mem(),
+        .write_mem(memory_write),
         .funct3(funct3),
-        .write_address(),
+        .write_address(memory_write_address),
         .write_data(rs2_value),
-        .read_address(),
+        .read_address(memory_read_address),
         .read_data(memory_read_value),
         .led(),
         .red(),
@@ -113,7 +136,7 @@ module top (
     // Program Counter
     program_counter PC (
         .clk(clk),
-        .pc_control(),
+        .pc_control(pc_control),
         .immediate(immediate),
         .rs1(rs1_value),
         .PC(pc_out)
@@ -122,11 +145,11 @@ module top (
     // Register File
     RegisterFile REGFILE (
         .clk(clk),
-        .WEn(),
+        .WEn(register_write_en),
         .rs1(rs1_address),
         .rs2(rs2_address),
         .rd(rd_address),
-        .write_data(),
+        .write_data(register_file_write),
         .rs1_data(rs1_value),
         .rs2_data(rs2_value)
     );

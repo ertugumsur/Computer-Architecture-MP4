@@ -16,11 +16,7 @@ module alu(
     input logic [31:0] operand_a, // First operand
     input logic [31:0] operand_b, // Second operand
     input logic [3:0] alu_control, // Control signal to determine operation to perform
-<<<<<<< HEAD
-    output logic [31:0] result, // Result
-=======
     output logic [31:0] result // Result
->>>>>>> 3d91ce52cafe3e3671ba75edec07a3e8d8a0426f
 );
     always_comb begin
         case (alu_control)
