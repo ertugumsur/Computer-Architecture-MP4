@@ -8,7 +8,7 @@
 //
 // Used In: All stages
 //
-// File Contributor(s): Ishan Porwal
+// File Contributor(s): Ertug Umsur, Ishan Porwal
 //-----------------------------------------------------------------------------
 
 `include "alu_control.sv"

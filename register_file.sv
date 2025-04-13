@@ -9,7 +9,7 @@
 //
 // Used In: Decode, Writeback
 //
-// File Contributor(s): Ishan Porwal
+// File Contributor(s): Ertug Umsur, Ishan Porwal
 //-----------------------------------------------------------------------------
 
 module RegisterFile #(
