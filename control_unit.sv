@@ -15,7 +15,14 @@
 module control_unit (
     
 
-    input  logic [31:0] instruction,
+    input  logic [6:0] opcode,       // Operation code
+    input  logic [4:0] rd_address,           // Destination register
+    input  logic [2:0] funct3,       // Function 3 bits
+    input  logic [4:0] rs1_address,          // Source register 1
+    input  logic [4:0] rs2_address,          // Source register 2
+    input  logic [6:0] funct7,        // Function 7 bits (upper 7 bits)
+
+    input  logic [31:0] alu_result,
     input  logic [31:0] rs1,
     input  logic [31:0] immediate,
     input  logic [31:0] pc,
@@ -24,39 +31,123 @@ module control_unit (
 
     input  logic branch_taken, // Input for Branch Logic
 
-    output logic register_write_en, // Enable for Write in Register File
     output logic [3:0] pc_control, // Control Signal for Program Counter
     output logic [1:0] ir_control, // Control Signal for Instruction Register
     output logic [3:0] alu_control, // Control Signal for ALU
-    output logic [31:0] op2, // Second Input for the ALU
+
+    output logic register_write_en, // Enable for Write in Register File
+    output logic memory_write_en,
 
     output logic [31:0] memory_write,
-    output logic memory_write_en,
     output logic [31:0] memory_write_address,
     output logic [31:0] memory_read_address,
-    output logic [31:0] register_file_write
+    output logic [31:0] register_file_write,
+    output logic [31:0] op2 // Second Input for the ALU
 
 );(
 
-    enum logic[1:0] {EXECUTE, FETCH, PC_UPDATE} current_state;
+    enum logic[1:0] {EXECUTE, FETCH, PC_UPDATE} current_state, next_state_flag;
+
 
     always_comb begin 
         case(state)
 
-            'b01:
-                pc_control = 'b0100
-                ir_control = 'b00
-                alu_control = 'b0000
-                register_write_en = 'b0
-                memory_write_en = 'b0
+            PC_UPDATE:
+                pc_control <= 4'b0100
+                ir_control <= 2'b00
+                alu_control <= 4'b0000
 
-                memory_write = 32'b0
-                memory_write_address = 32'b0
-                memory_read_addreass = 32'b0
-                op2 = 32'b0
+                register_write_en <= 1'b0
+                memory_write_en <= 1'b0
+
+                memory_write <= 32'b0
+                memory_write_address <= 32'b0
+                memory_read_address <= 32'b0
+                register_file_write <= 32'b0
+                op2 <= 32'b0
+
+                next_state_flag <= FETCH
+            
+            FETCH:
+                pc_control <= 4'b0000
+                ir_control <= 2'b01
+                alu_control <= 4'b0000
+
+                register_write_en <= 1'b0
+                memory_write_en <= 1'b0
+
+                memory_write <= 32'b0
+                memory_write_address <= 32'b0
+                memory_read_address <= pc
+                register_file_write <= 32'b0
+                op2 <= 32'b0
+
+                next_state_flag <= EXECUTE
+            
+            EXECUTE:
+
+                case(opcode) 
+
+                    7'b0110011: // R-Type
+                        pc_control <= 4'b0000
+                        ir_control <= 2'b00
+
+                        register_write_en <= 1'b1
+                        memory_write_en <= 1'b0
+
+                        memory_write <= 32'b0
+                        memory_write_address <= 32'b0
+                        memory_read_addreass <= 32'b0
+                        register_file_write <= alu_result
+                        op2 <= rs2
+
+                        if (funct7 == 7'b0000000) begin
+                            case(funct3)
+                                3'b000: alu_control <= 4'b0000 // ADD Operation
+                                3'b100: alu_control <= 4'b0100 // XOR Operation
+                                3'b110: alu_control <= 4'b0011 // OR Operation
+                                3'b111: alu_control <= 4'b0010 // AND Operation
+                                3'b001: alu_control <= 4'b0111 // Shift Left Logical Operation
+                                3'b101: alu_control <= 4'b1000 // Shift Right Logical Operation
+                                3'b010: alu_control <= 4'b0101 // Set Less Than Operation
+                                3'b010: alu_control <= 4'b0110 // Set Less Than Unisgned Operation
+
+                            endcase
+                        end else if (funct7 == 7'b0100000) begin
+                            case(funct3)
+                                3'b000: alu_control <= 4'b0001 // SUB Operation
+                                3'b101: alu_control <= 4'b1001 // Shift Right Arith Operation
+                            endcase
+                        end
+
+                        next_state_flag <= PC_UPDATE
+
+
+                    7'b0010011: // I-Type ALU Immediate Operations
+
+                    7'b0000011: // I-Type Load Operations
+
+                    7'b0100011: // S-Type Store Operations
+
+                    7'b1100011: // B-Type Branch Operations
+
+                    7'b1101111: // JAL Operation
+
+                    7'b1100111: // JALR Operation
+
+                    7'b0110111: // Load Upper Immediate Operation
+
+                    7'b0010111: // Load Upper Immediate to PC Operation
+
+                endcase
+
+
 
         endcase
     end
 
+    always_ff @(posedge clk) begin
+        current_state <= next_state_flag
+    end
 )
 endmodule

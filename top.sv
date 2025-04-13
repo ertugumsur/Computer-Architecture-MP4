@@ -61,18 +61,32 @@ module top (
     
 
     control_unit CONTROL_UNIT (
-        .instruction(instruction),
+        .opcode(opcode),
+        .rd_address(rd_address),
+        .funct3(funct3),
+        .rs1_address(rs1_address),
+        .rs2_address(rs2_address),
+        .funct7(funct7),
+
+        .alu_result(alu_result),
+        .rs1(rs1_value),
+        .immediate(immediate),
+        .pc(pc_out),
+        .rs2(rs2_value),
+        .memory_read_value(memory_read_value),
+
         .branch_taken(branch_taken),
-        .register_write_en(register_write_en),
+
         .pc_control(pc_control),
         .ir_control(ir_control),
         .alu_control(alu_control),
-        .op2(op2),
-        .memory_write(memory_write),
+        .register_write_en(register_write_en),
         .memory_write_en(memory_write_en),
+        .memory_write(memory_write),
         .memory_write_address(memory_write_address),
         .memory_read_address(memory_read_address),
-        .register_file_write(register_file_write)
+        .register_file_write(register_file_write),
+        .op2(op2)
     );
 
     // ALU
