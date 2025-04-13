@@ -22,8 +22,6 @@
 `include "program_counter.sv"
 `include "register_file.sv"
 
-// Fade top level module
-
 module top (
     input logic clk
 );
