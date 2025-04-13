@@ -27,7 +27,7 @@ module control_unit (
     output logic register_write_en, // Enable for Write in Register File
     output logic [3:0] pc_control, // Control Signal for Program Counter
     output logic [1:0] ir_control, // Control Signal for Instruction Register
-    output logic [2:0] alu_control, // Control Signal for ALU
+    output logic [3:0] alu_control, // Control Signal for ALU
     output logic [31:0] op2, // Second Input for the ALU
 
     output logic [31:0] memory_write,
@@ -46,7 +46,7 @@ module control_unit (
             'b01:
                 pc_control = 'b0100
                 ir_control = 'b00
-                alu_control = 'b000
+                alu_control = 'b0000
                 register_write_en = 'b0
                 memory_write_en = 'b0
 
