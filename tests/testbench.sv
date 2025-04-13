@@ -24,13 +24,11 @@ module testbench;
         #4 clk = ~clk;
     end
 
-    // Instantiate processor top module
     top dut (
         .clk(clk)
     );
 
-    // Load the program from memory init file
-    defparam dut.MEM.init_file = "tests/rv32i_test.txt";
+    defparam testbench.dut.MEM.INIT_FILE = "tests/initial_full_test.txt";
 
     initial begin
         $dumpfile("processor.vcd");
@@ -44,7 +42,7 @@ module testbench;
         reset = 0;
         $display("Reset released\n");
 
-        // Run long enough to execute the program
+        // Run long enough to execute program
         #512;
 
         $display("\n==== Final Register File Dump ====");
