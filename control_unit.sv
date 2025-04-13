@@ -13,8 +13,7 @@
 //-----------------------------------------------------------------------------
 
 module control_unit (
-    
-
+    input logic clk,
     input  logic [6:0] opcode,       // Operation code
     input  logic [4:0] rd_address,           // Destination register
     input  logic [2:0] funct3,       // Function 3 bits
@@ -43,259 +42,283 @@ module control_unit (
     output logic [31:0] memory_read_address,
     output logic [31:0] register_file_write,
     output logic [31:0] op2 // Second Input for the ALU
+);
 
-);(
+    typedef enum logic[1:0] {
+        EXECUTE,
+        FETCH,
+        PC_UPDATE
+    } fsm_state_t;
 
-    typedef enum logic[1:0] {EXECUTE, FETCH, PC_UPDATE} current_state, next_state_flag;
+    fsm_state_t current_state, next_state_flag;
 
+    always_comb begin
+        // default assignments
+        pc_control = 4'b0000;
+        ir_control = 2'b00;
+        alu_control = 4'b0000;
+        register_write_en = 1'b0;
+        memory_write_en = 1'b0;
+        memory_write = 32'b0;
+        memory_write_address = 32'b0;
+        memory_read_address = 32'b0;
+        register_file_write = 32'b0;
+        op2 = 32'b0;
+        next_state_flag = current_state;
 
-    always_comb begin 
-        case(state)
+        case (current_state)
+            PC_UPDATE: begin
+                pc_control           <= 4'b0100;
+                ir_control           <= 2'b00;
+                alu_control          <= 4'b0000;
 
-            PC_UPDATE:
-                pc_control <= 4'b0100
-                ir_control <= 2'b00
-                alu_control <= 4'b0000
+                register_write_en    <= 1'b0;
+                memory_write_en      <= 1'b0;
 
-                register_write_en <= 1'b0
-                memory_write_en <= 1'b0
+                memory_write         <= 32'b0;
+                memory_write_address <= 32'b0;
+                memory_read_address  <= 32'b0;
+                register_file_write  <= 32'b0;
+                op2                  <= 32'b0;
 
-                memory_write <= 32'b0
-                memory_write_address <= 32'b0
-                memory_read_address <= 32'b0
-                register_file_write <= 32'b0
-                op2 <= 32'b0
-
-                next_state_flag <= FETCH
+                next_state_flag      <= FETCH;
+            end
             
-            FETCH:
-                pc_control <= 4'b0000
-                ir_control <= 2'b01
-                alu_control <= 4'b0000
+            FETCH: begin
+                pc_control <= 4'b0000;
+                ir_control <= 2'b01;
+                alu_control <= 4'b0000;
 
-                register_write_en <= 1'b0
-                memory_write_en <= 1'b0
+                register_write_en <= 1'b0;
+                memory_write_en <= 1'b0;
 
-                memory_write <= 32'b0
-                memory_write_address <= 32'b0
-                memory_read_address <= pc
-                register_file_write <= 32'b0
-                op2 <= 32'b0
+                memory_write <= 32'b0;
+                memory_write_address <= 32'b0;
+                memory_read_address <= pc;
+                register_file_write <= 32'b0;
+                op2 <= 32'b0;
 
-                next_state_flag <= EXECUTE
-            
-            EXECUTE:
+                next_state_flag <= EXECUTE;
+            end
 
+            EXECUTE: begin
                 case(opcode) 
 
-                    7'b0110011: // R-Type
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
+                    7'b0110011: begin // R-Type
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= alu_result
-                        op2 <= rs2
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= alu_result;
+                        op2 <= rs2;
 
                         if (funct7 == 7'b0000000) begin
                             case(funct3)
-                                3'b000: alu_control <= 4'b0000 // ADD Operation
-                                3'b100: alu_control <= 4'b0100 // XOR Operation
-                                3'b110: alu_control <= 4'b0011 // OR Operation
-                                3'b111: alu_control <= 4'b0010 // AND Operation
-                                3'b001: alu_control <= 4'b0111 // Shift Left Logical Operation
-                                3'b101: alu_control <= 4'b1000 // Shift Right Logical Operation
-                                3'b010: alu_control <= 4'b0101 // Set Less Than Operation
-                                3'b011: alu_control <= 4'b0110 // Set Less Than Unisgned Operation
-
+                                3'b000: alu_control <= 4'b0000; // ADD
+                                3'b100: alu_control <= 4'b0100; // XOR
+                                3'b110: alu_control <= 4'b0011; // OR
+                                3'b111: alu_control <= 4'b0010; // AND
+                                3'b001: alu_control <= 4'b0111; // SLL
+                                3'b101: alu_control <= 4'b1000; // SRL
+                                3'b010: alu_control <= 4'b0101; // SLT
+                                3'b011: alu_control <= 4'b0110; // SLTU
                             endcase
                         end else if (funct7 == 7'b0100000) begin
                             case(funct3)
-                                3'b000: alu_control <= 4'b0001 // SUB Operation
-                                3'b101: alu_control <= 4'b1001 // Shift Right Arith Operation
+                                3'b000: alu_control <= 4'b0001; // SUB
+                                3'b101: alu_control <= 4'b1001; // SRA
                             endcase
                         end
 
-                        next_state_flag <= PC_UPDATE
+                        next_state_flag <= PC_UPDATE;
+                    end
 
+                    7'b0010011: begin // I-Type ALU Immediate
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
 
-                    7'b0010011: // I-Type ALU Immediate Operations
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
-
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= alu_result
-                        op2 <= immediate
-
-                        
-                        case(funct3)
-                            3'b000: alu_control <= 4'b0000 // ADD Operation
-                            3'b100: alu_control <= 4'b0100 // XOR Operation
-                            3'b110: alu_control <= 4'b0011 // OR Operation
-                            3'b111: alu_control <= 4'b0010 // AND Operation
-                            3'b001: if(immediate[5:11] == 7'b0000000) begin alu_control <= 4'b0111 end // Shift Left Logical Operation
-                            3'b101: if(immediate[5:11] == 7'b0000000) begin alu_control <= 4'b1000 end else if (immediate[5:11] == 7'b0100000) begin alu_control <= 4'b1001 end// Shift Right Logical Operation
-                            3'b010: alu_control <= 4'b0101 // Set Less Than Operation
-                            3'b011: alu_control <= 4'b0110 // Set Less Than Unisgned Operation
-                        endcase
-
-                        next_state_flag <= PC_UPDATE
-
-                    7'b0000011: // I-Type Load Operations
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
-
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
-
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= alu_result
-                        op2 <= immediate
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= alu_result;
+                        op2 <= immediate;
 
                         case(funct3)
-                            3'b000: register_file_write <= {{24{memory_read_value[7]}},memory_read_value[0:7]} // Byte Load
-                            3'b001: register_file_write <= {{16{memory_read_value[15]}},memory_read_value[0:15]} // Half Load
-                            3'b010: register_file_write <= memory_read_value // Word Load
-                            3'b100: register_file_write <= {24'b0,memory_read_value[0:7]} // Unsigned Byte Load
-                            3'b101: register_file_write <= {16'b0,memory_read_value[0:15]} // Unsigned Half Load
+                            3'b000: alu_control <= 4'b0000; // ADDI
+                            3'b100: alu_control <= 4'b0100; // XORI
+                            3'b110: alu_control <= 4'b0011; // ORI
+                            3'b111: alu_control <= 4'b0010; // ANDI
+                            3'b001: if(immediate[11:5] == 7'b0000000) begin alu_control <= 4'b0111; end
+                            3'b101: if(immediate[11:5] == 7'b0000000) begin alu_control <= 4'b1000; end else if (immediate[11:5] == 7'b0100000) begin alu_control <= 4'b1001; end
+                            3'b010: alu_control <= 4'b0101; // SLTI
+                            3'b011: alu_control <= 4'b0110; // SLTIU
                         endcase
 
-                        next_state_flag <= PC_UPDATE
+                        next_state_flag <= PC_UPDATE;
+                    end
 
-                    7'b0100011: // S-Type Store Operations
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
+                    7'b0000011: begin // I-Type Load
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
 
-                        register_write_en <= 1'b0
-                        memory_write_en <= 1'b1
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        memory_write_address <= alu_result
-                        memory_read_address <= 32'b0
-                        register_file_write <= 32'b0
-                        op2 <= immediate
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= alu_result;
+                        op2 <= immediate;
 
                         case(funct3)
-                            3'b000: memory_write <= {{24{rs2[7]}},rs2[0:7]} // Byte Load
-                            3'b001: memory_write <= {{16{rs2[15]}},rs2[0:15]} // Half Load
-                            3'b010: memory_write <= rs2 // Word Load
+                            3'b000: register_file_write <= {{24{memory_read_value[7]}}, memory_read_value[7:0]}; // LB
+                            3'b001: register_file_write <= {{16{memory_read_value[15]}}, memory_read_value[15:0]}; // LH
+                            3'b010: register_file_write <= memory_read_value; // LW
+                            3'b100: register_file_write <= {24'b0, memory_read_value[7:0]}; // LBU
+                            3'b101: register_file_write <= {16'b0, memory_read_value[15:0]}; // LHU
                         endcase
 
-                        next_state_flag <= PC_UPDATE
+                        next_state_flag <= PC_UPDATE;
+                    end
 
-                    7'b1100011: // B-Type Branch Operations
+                    7'b0100011: begin // S-Type Store
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
+
+                        register_write_en <= 1'b0;
+                        memory_write_en <= 1'b1;
+
+                        memory_write_address <= alu_result;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= 32'b0;
+                        op2 <= immediate;
+
+                        case(funct3)
+                            3'b000: memory_write <= {{24{rs2[7]}}, rs2[7:0]}; // SB
+                            3'b001: memory_write <= {{16{rs2[15]}}, rs2[15:0]}; // SH
+                            3'b010: memory_write <= rs2; // SW
+                        endcase
+
+                        next_state_flag <= PC_UPDATE;
+                    end
+
+                    7'b1100011: begin // B-Type Branch
                         if (branch_taken) begin
-                            pc_control <= 4'b0110
-                            ir_control <= 2'b10
-                            alu_control <= 4'b0000
+                            pc_control <= 4'b0110;
+                            ir_control <= 2'b10;
+                            alu_control <= 4'b0000;
 
-                            register_write_en <= 1'b0
-                            memory_write_en <= 1'b0
+                            register_write_en <= 1'b0;
+                            memory_write_en <= 1'b0;
 
-                            memory_write <= 32'b0
-                            memory_write_address <= 32'b0
-                            memory_read_address <= 32'b0
-                            register_file_write <= 32'b0
-                            op2 <= 32'b0
+                            memory_write <= 32'b0;
+                            memory_write_address <= 32'b0;
+                            memory_read_address <= 32'b0;
+                            register_file_write <= 32'b0;
+                            op2 <= 32'b0;
 
-                            next_state_flag <= FETCH
-                        end 
-                        else begin
-                            pc_control <= 4'b0000
-                            ir_control <= 2'b00
-                            alu_control <= 4'b0000
+                            next_state_flag <= FETCH;
+                        end else begin
+                            pc_control <= 4'b0000;
+                            ir_control <= 2'b00;
+                            alu_control <= 4'b0000;
 
-                            register_write_en <= 1'b0
-                            memory_write_en <= 1'b0
+                            register_write_en <= 1'b0;
+                            memory_write_en <= 1'b0;
 
-                            memory_write <= 32'b0
-                            memory_write_address <= 32'b0
-                            memory_read_address <= 32'b0
-                            register_file_write <= 32'b0
-                            op2 <= 32'b0
+                            memory_write <= 32'b0;
+                            memory_write_address <= 32'b0;
+                            memory_read_address <= 32'b0;
+                            register_file_write <= 32'b0;
+                            op2 <= 32'b0;
 
-                            next_state_flag <= PC_UPDATE
+                            next_state_flag <= PC_UPDATE;
                         end
+                    end
 
-                    7'b1101111: // JAL Operation
-                        pc_control <= 4'b0110
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
+                    7'b1101111: begin // JAL
+                        pc_control <= 4'b0110;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= pc + 3'b100
-                        op2 <= 32'b0
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= pc + 3'b100;
+                        op2 <= 32'b0;
 
-                        next_state_flag <= FETCH
+                        next_state_flag <= FETCH;
+                    end
                         
-                    7'b1100111: // JALR Operation
-                        pc_control <= 4'b0101
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
+                    7'b1100111: begin // JALR
+                        pc_control <= 4'b0101;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= pc + 3'b100
-                        op2 <= 32'b0
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= pc + 3'b100;
+                        op2 <= 32'b0;
 
-                        next_state_flag <= FETCH
+                        next_state_flag <= FETCH;
+                    end
 
-                    7'b0110111: // Load Upper Immediate Operation
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
+                    7'b0110111: begin // LUI
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= immediate
-                        op2 <= 32'b0
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= immediate;
+                        op2 <= 32'b0;
 
-                        next_state_flag <= PC_UPDATE
-                    7'b0010111: // Load Upper Immediate to PC Operation
-                        pc_control <= 4'b0000
-                        ir_control <= 2'b00
-                        alu_control <= 4'b0000
+                        next_state_flag <= PC_UPDATE;
+                    end
 
-                        register_write_en <= 1'b1
-                        memory_write_en <= 1'b0
+                    7'b0010111: begin // AUIPC
+                        pc_control <= 4'b0000;
+                        ir_control <= 2'b00;
+                        alu_control <= 4'b0000;
 
-                        memory_write <= 32'b0
-                        memory_write_address <= 32'b0
-                        memory_read_address <= 32'b0
-                        register_file_write <= pc + immediate
-                        op2 <= 32'b0
+                        register_write_en <= 1'b1;
+                        memory_write_en <= 1'b0;
 
-                        next_state_flag <= PC_UPDATE
+                        memory_write <= 32'b0;
+                        memory_write_address <= 32'b0;
+                        memory_read_address <= 32'b0;
+                        register_file_write <= pc + immediate;
+                        op2 <= 32'b0;
+
+                        next_state_flag <= PC_UPDATE;
+                    end
                 endcase
+            end
         endcase
     end
 
     always_ff @(posedge clk) begin
-        current_state <= next_state_flag
+        current_state <= next_state_flag;
     end
-)
+
 endmodule

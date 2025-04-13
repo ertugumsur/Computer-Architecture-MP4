@@ -61,6 +61,7 @@ module top (
     
 
     control_unit CONTROL_UNIT (
+        .clk(clk),
         .opcode(opcode),
         .rd_address(rd_address),
         .funct3(funct3),
