@@ -11,7 +11,6 @@
 // File Contributor(s): Ertug Umsur, Ishan Porwal
 //-----------------------------------------------------------------------------
 
-`include "alu_control.sv"
 `include "alu.sv"
 `include "branch_logic.sv"
 `include "control_unit.sv"
@@ -53,8 +52,8 @@ module top (
     logic [31:0] alu_result;
 
     // Control Unit Logic Output
-    logic [31:0] op2, memory_write, memory_read_address, register_file_write, memory_write_address;
-    logic register_write_en, memory_write_en;
+    logic [31:0] op2, memory_read_address, register_file_write, memory_write_address;
+    logic register_write_en, memory_write_en, memory_write;
     logic [3:0] pc_control;
     logic [3:0] alu_control;
     logic [1:0] ir_control;
@@ -78,13 +77,13 @@ module top (
 
         .branch_taken(branch_taken),
 
-        .pc_control(pc_control),
-        .ir_control(ir_control),
-        .alu_control(alu_control),
-        .register_write_en(register_write_en),
-        .memory_write_en(memory_write_en),
-        .memory_write(memory_write),
-        .memory_write_address(memory_write_address),
+        .pc_control(pc_control), //
+        .ir_control(ir_control), //
+        .alu_control(alu_control), //
+        .register_write_en(register_write_en), //
+        .memory_write_en(memory_write_en), //
+        .memory_write(memory_write), //
+        .memory_write_address(memory_write_address), //
         .memory_read_address(memory_read_address),
         .register_file_write(register_file_write),
         .op2(op2)
@@ -152,7 +151,7 @@ module top (
         .pc_control(pc_control),
         .immediate(immediate),
         .rs1(rs1_value),
-        .PC(pc_out)
+        .pc(pc_out)
     );
 
     // Register File
@@ -162,9 +161,9 @@ module top (
         .rs1(rs1_address),
         .rs2(rs2_address),
         .rd(rd_address),
-        .write_data(register_file_write),
-        .rs1_data(rs1_value),
-        .rs2_data(rs2_value)
+        .rdv(register_file_write),
+        .rs1v(rs1_value),
+        .rs2v(rs2_value)
     );
 
 endmodule

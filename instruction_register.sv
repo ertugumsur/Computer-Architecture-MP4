@@ -12,7 +12,7 @@
 
 module instruction_register (
     input  logic clk, // Clock signal
-    input  logic [1:0] ir_control // Control unit signal for Instruction Register
+    input  logic [1:0] ir_control, // Control unit signal for Instruction Register
     input  logic [31:0] instr_in, // Instruction from memory
     output logic [31:0] instr_out // Latched instruction output
 );

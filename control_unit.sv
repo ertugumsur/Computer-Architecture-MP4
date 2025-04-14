@@ -37,7 +37,7 @@ module control_unit (
     output logic register_write_en, // Enable for Write in Register File
     output logic memory_write_en,
 
-    output logic [31:0] memory_write,
+    output logic memory_write,
     output logic [31:0] memory_write_address,
     output logic [31:0] memory_read_address,
     output logic [31:0] register_file_write,

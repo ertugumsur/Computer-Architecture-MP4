@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 
 `timescale 10ns/10ns
-`include "../top.sv"
+`include "top.sv"
 
 module testbench;
 

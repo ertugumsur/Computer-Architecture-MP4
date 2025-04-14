@@ -33,7 +33,7 @@ module program_counter (
         end
 
         if (enable) begin
-            else if (jalr) begin
+            if (jalr) begin
                 // for a JALR, use the jump target computed by the ALU
                 pc <= rs1 + immediate;
             end

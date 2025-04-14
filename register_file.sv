@@ -24,12 +24,12 @@ module RegisterFile #(
     output logic [data_width-1:0] rs1v, rs2v        // register data
 );
 
-    logic [data_width-1:0] regs[num_reg];           // register array
+    logic [num_reg-1:0][data_width-1:0] regs;       // register array
 
     always_ff @(posedge clk) begin
 
         if (WEn && rd != 0) begin
-            regs[rd] <= rdv                         // writing to destination register
+            regs[rd] <= rdv;                         // writing to destination register
         end
     end
 
