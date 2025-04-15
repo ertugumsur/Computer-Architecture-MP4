@@ -8,7 +8,7 @@
 //
 // Used In: All stages
 //
-// File Contributor(s): Ertug Umsur, Ishan Porwal
+// File Contributor(s): Ertug Umsur, Ishan Porwal, AHan Trivedi
 //-----------------------------------------------------------------------------
 
 `include "alu.sv"
