@@ -1,11 +1,15 @@
 //-----------------------------------------------------------------------------
 // Main Control Unit
 //
-// Implements a finite state machine (FSM) that sequences the processor through
-// the multicycle stages: Fetch, Decode, Execute, Memory, and Writeback. Based
-// on the 7-bit opcode from the decoded instruction and the current state,
-// this module generates the control signals that guide the datapath — including
-// register file writes, ALU source selection, memory access, and PC updates.
+// This module implements a finite state machine (FSM) that cycles through three
+// stages: EXECUTE, FETCH, and PC_UPDATE. It generates all control signals
+// needed to operate the processor datapath for one instruction at a time,
+// including ALU operation selection, register file writes, program counter
+// updates, memory read/write control, and instruction register loading.
+// It also sets the memory_funct3 signal to 3'b010 during instruction fetches,
+// and to the instruction's funct3 value during memory accesses. This unit is
+// responsible for orchestrating each stage of the multicycle RV32I processor
+// based on the opcode, funct3, and funct7 fields of the instruction.
 //
 // Used In: All stages
 //
@@ -51,7 +55,7 @@ module control_unit (
         PC_UPDATE
     } fsm_state_t;
 
-    fsm_state_t current_state, next_state_flag;
+    fsm_state_t current_state = PC_UPDATE, next_state_flag;
 
     always_comb begin
         // default assignments
