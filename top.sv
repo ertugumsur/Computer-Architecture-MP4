@@ -57,6 +57,7 @@ module top (
     logic [3:0] pc_control;
     logic [3:0] alu_control;
     logic [1:0] ir_control;
+    logic [2:0] memory_funct3;
     
 
     control_unit CONTROL_UNIT (
@@ -86,7 +87,8 @@ module top (
         .memory_write_address(memory_write_address), //
         .memory_read_address(memory_read_address),
         .register_file_write(register_file_write),
-        .op2(op2)
+        .op2(op2),
+        .memory_funct3(memory_funct3)
     );
 
     // ALU
@@ -134,7 +136,7 @@ module top (
     memory MEM (
         .clk(clk),
         .write_mem(memory_write),
-        .funct3(funct3),
+        .funct3(memory_funct3),
         .write_address(memory_write_address),
         .write_data(rs2_value),
         .read_address(memory_read_address),

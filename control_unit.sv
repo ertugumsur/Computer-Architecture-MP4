@@ -41,7 +41,8 @@ module control_unit (
     output logic [31:0] memory_write_address,
     output logic [31:0] memory_read_address,
     output logic [31:0] register_file_write,
-    output logic [31:0] op2 // Second Input for the ALU
+    output logic [31:0] op2, // Second Input for the ALU
+    output logic [2:0] memory_funct3
 );
 
     typedef enum logic[1:0] {
@@ -56,6 +57,7 @@ module control_unit (
         // default assignments
         pc_control = 4'b0000;
         ir_control = 2'b00;
+        memory_funct3 = 3'b000;
         alu_control = 4'b0000;
         register_write_en = 1'b0;
         memory_write_en = 1'b0;
@@ -87,6 +89,7 @@ module control_unit (
             FETCH: begin
                 pc_control <= 4'b0000;
                 ir_control <= 2'b01;
+                memory_funct3 <= 3'b010;
                 alu_control <= 4'b0000;
 
                 register_write_en <= 1'b0;
@@ -105,6 +108,7 @@ module control_unit (
                 case(opcode) 
 
                     7'b0110011: begin // R-Type
+                        memory_funct3 <= funct3;
                         pc_control <= 4'b0000;
                         ir_control <= 2'b00;
 
