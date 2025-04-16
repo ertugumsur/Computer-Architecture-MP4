@@ -19,8 +19,8 @@ module immediate_generator(
     logic [6:0] opcode;
     assign opcode = instruction[6:0];   // Extract opcode (used to determine format)
 
-    always_comb begin
-        case (opcode)
+    always begin
+        #1 case (opcode)
             // --------------------------------------------------
             // I-Type
             // Immediate is in bits [31:20] (12-bit signed)

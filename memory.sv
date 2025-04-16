@@ -67,6 +67,8 @@ module memory #(
     logic sign_bit1;
     logic sign_bit2;
     logic sign_bit3;
+    logic [11:0] address;
+    logic [19:0] lk;
 
     int i;
 
@@ -121,7 +123,28 @@ module memory #(
     assign sign_bit2 = read_value[23];
     assign sign_bit3 = read_value[31];
 
+    assign address = read_address[12:2];
+    assign lk = read_address[31:13];
+
+    assign change1 = read_address[1];
+    assign change2 = read_address[0];
+    assign change3 = funct3[1];
+    assign change4 = funct3[0];
+    assign change5 = funct3[2];
+
+
     always_comb begin
+
+        read_address1 = change1;
+        read_address0 = change2;
+        read_word = change3;
+        read_half = change4;
+        read_unsigned = change5;
+
+        if (lk == 19'd0) begin
+            read_value = memory[address];
+        end
+
         if (read_word) begin
             read_data = read_value;
         end

@@ -26,6 +26,14 @@ module RegisterFile #(
 
     logic [num_reg-1:0][data_width-1:0] regs;       // register array
 
+    int i;
+    
+    initial begin
+        for(i = 0; i < 32; i++) begin
+            regs[i] = 32'b0;
+        end
+    end
+
     always_ff @(posedge clk) begin
 
         if (WEn && rd != 0) begin
@@ -34,8 +42,8 @@ module RegisterFile #(
     end
 
     always_comb begin
-        rs1v <= (rs1 == 0) ? '0 : regs[rs1];
-        rs2v <= (rs2 == 0) ? '0 : regs[rs2];
+        rs1v = (rs1 == 0) ? '0 : regs[rs1];
+        rs2v = (rs2 == 0) ? '0 : regs[rs2];
     end
 
 endmodule

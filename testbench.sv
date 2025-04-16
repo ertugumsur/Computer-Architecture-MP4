@@ -28,7 +28,7 @@ module testbench;
         .clk(clk)
     );
 
-    defparam testbench.dut.MEM.INIT_FILE = "tests/initial_full_test.txt";
+    defparam testbench.dut.MEM.INIT_FILE = "tests/final_full_test.txt";
 
     initial begin
         $dumpfile("processor.vcd");
@@ -45,34 +45,34 @@ module testbench;
         // Run long enough to execute program
         #512;
 
-        $display("\n==== Final Register File Dump ====");
+        //$display("\n==== Final Register File Dump ====");
         for (int i = 0; i < 32; i++) begin
             $display("x%0d = 0x%08h", i, dut.REGFILE.regs[i]);
         end
 
-        $display("\n==== Simulation Complete ====");
+        //$display("\n==== Simulation Complete ====");
         $finish;
     end
 
     // Per-instruction execution trace
     always_ff @(posedge clk) begin
-        $display("PC = 0x%08h | Instr = 0x%08h",
-                 dut.pc_out, dut.instruction);
+        //$display("PC = 0x%08h | Instr = 0x%08h",
+                 //dut.pc_out, dut.instruction);
     end
 
     // Register file write trace
     always_ff @(posedge clk) begin
         if (dut.register_write_en && dut.rd_address != 0) begin
-            $display("    >> x%-2d <= 0x%08h",
-                     dut.rd_address, dut.register_file_write);
+            //$display("    >> x%-2d <= 0x%08h",
+                     //dut.rd_address, dut.register_file_write);
         end
     end
 
     // Memory write trace
     always_ff @(posedge clk) begin
         if (dut.memory_write_en) begin
-            $display("    >> MEM[0x%08h] <= 0x%08h",
-                     dut.memory_write_address, dut.memory_write);
+            //$display("    >> MEM[0x%08h] <= 0x%08h",
+                     //dut.memory_write_address, dut.memory_write);
         end
     end
 
