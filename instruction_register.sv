@@ -19,8 +19,9 @@ module instruction_register (
 
     logic reset, enable;
 
-    always_comb begin
-        {reset, enable} = ir_control;
+    always begin
+        reset = ir_control[1];
+        #1 enable = ir_control[0];
     end
 
 

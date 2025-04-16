@@ -22,8 +22,15 @@ module program_counter (
 
     logic reset, enable, pc_src, jalr;
 
-    always_comb begin
-        {reset, enable, pc_src, jalr} = pc_control;
+    initial begin
+        pc <= 32'b0;
+    end
+
+    always begin
+        reset = pc_control[3];
+        enable = pc_control[2];
+        pc_src = pc_control[1];
+        #1 jalr = pc_control[0];
     end
 
     always_ff @(posedge clk or posedge reset) begin

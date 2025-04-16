@@ -35,8 +35,8 @@ module instruction_decode(
     assign opcode = instruction[6:0];
 
     // Set safe default values to avoid undefined logic
-    always_comb begin
-        rd     = 5'b0;
+    always begin
+        #1 rd     = 5'b0;
         rs1    = 5'b0;
         rs2    = 5'b0;
         funct3 = 3'b0;

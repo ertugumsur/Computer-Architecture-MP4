@@ -18,8 +18,8 @@ module alu(
     input logic [3:0] alu_control, // Control signal to determine operation to perform
     output logic [31:0] result // Result
 );
-    always_comb begin
-        case (alu_control)
+    always begin
+        #1 case (alu_control)
             4'b0000: result = operand_a + operand_b; // ADD
             4'b0001: result = operand_a - operand_b; // SUB
             4'b0010: result = operand_a & operand_b; // AND
