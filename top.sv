@@ -52,8 +52,8 @@ module top (
     logic [31:0] alu_result;
 
     // Control Unit Logic Output
-    logic [31:0] op2, memory_read_address, register_file_write, memory_write_address;
-    logic register_write_en, memory_write_en, memory_write;
+    logic [31:0] op2, memory_read_address, register_file_write, memory_write_address, memory_write;
+    logic register_write_en, memory_write_en;
     logic [3:0] pc_control;
     logic [3:0] alu_control;
     logic [1:0] ir_control;
@@ -135,10 +135,10 @@ module top (
     // Memory
     memory MEM (
         .clk(clk),
-        .write_mem(memory_write),
+        .write_mem(memory_write_en),
         .funct3(memory_funct3),
         .write_address(memory_write_address),
-        .write_data(rs2_value),
+        .write_data(memory_write),
         .read_address(memory_read_address),
         .read_data(memory_read_value),
         .led(),

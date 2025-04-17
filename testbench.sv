@@ -28,7 +28,7 @@ module testbench;
         .clk(clk)
     );
 
-    defparam testbench.dut.MEM.INIT_FILE = "tests/final_full_test.txt";
+    defparam testbench.dut.MEM.INIT_FILE = "tests/final_full_test_2.txt";
 
     initial begin
         $dumpfile("processor.vcd");
@@ -43,7 +43,7 @@ module testbench;
         $display("Reset released\n");
 
         // Run long enough to execute program
-        #512;
+        #2048;
 
         //$display("\n==== Final Register File Dump ====");
         for (int i = 0; i < 32; i++) begin

@@ -25,7 +25,7 @@ module instruction_register (
     end
 
 
-    always_ff @(posedge clk or posedge reset) begin
+    always_ff @(posedge clk) begin
         if (reset)
             instr_out <= 32'b0;
         else if (enable)

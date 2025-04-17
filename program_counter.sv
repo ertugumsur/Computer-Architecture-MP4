@@ -33,7 +33,7 @@ module program_counter (
         #1 jalr = pc_control[0];
     end
 
-    always_ff @(posedge clk or posedge reset) begin
+    always_ff @(posedge clk) begin
 
         if (reset) begin
                 pc <= 32'd0;
