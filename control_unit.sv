@@ -58,9 +58,20 @@ module control_unit (
     fsm_state_t next_state_flag;
     fsm_state_t current_state = FETCH;
 
-    always begin
+    logic [6:0] imm1;
+    logic [31:0] reg1, reg2, reg3, reg4, mem1, mem2;
+
+    assign imm1 = immediate[11:5];
+    assign reg1 = {{24{memory_read_value[7]}}, memory_read_value[7:0]};
+    assign reg2 = {{16{memory_read_value[15]}}, memory_read_value[15:0]};
+    assign reg3 = {24'b0, memory_read_value[7:0]};
+    assign reg4 = {16'b0, memory_read_value[15:0]};
+    assign mem1 = {{24{rs2[7]}}, rs2[7:0]};
+    assign mem2 = {{16{rs2[15]}}, rs2[15:0]};
+
+    always_comb begin
         // default assignments
-        #1 pc_control = 4'b0000;
+        pc_control = 4'b0000;
         ir_control = 2'b00;
         memory_funct3 = 3'b000;
         alu_control = 4'b0000;
@@ -165,8 +176,8 @@ module control_unit (
                             3'b100: alu_control = 4'b0100; // XORI
                             3'b110: alu_control = 4'b0011; // ORI
                             3'b111: alu_control = 4'b0010; // ANDI
-                            3'b001: if(immediate[11:5] == 7'b0000000) begin alu_control = 4'b0111; end
-                            3'b101: if(immediate[11:5] == 7'b0000000) begin alu_control = 4'b1000; end else if (immediate[11:5] == 7'b0100000) begin alu_control = 4'b1001; end
+                            3'b001: if(imm1 == 7'b0000000) begin alu_control = 4'b0111; end
+                            3'b101: if(imm1 == 7'b0000000) begin alu_control = 4'b1000; end else if (imm1 == 7'b0100000) begin alu_control = 4'b1001; end
                             3'b010: alu_control = 4'b0101; // SLTI
                             3'b011: alu_control = 4'b0110; // SLTIU
                         endcase
@@ -188,11 +199,11 @@ module control_unit (
                         op2 = immediate;
 
                         case(funct3)
-                            3'b000: register_file_write = {{24{memory_read_value[7]}}, memory_read_value[7:0]}; // LB
-                            3'b001: register_file_write = {{16{memory_read_value[15]}}, memory_read_value[15:0]}; // LH
+                            3'b000: register_file_write = reg1; // LB
+                            3'b001: register_file_write = reg2; // LH
                             3'b010: register_file_write = memory_read_value; // LW
-                            3'b100: register_file_write = {24'b0, memory_read_value[7:0]}; // LBU
-                            3'b101: register_file_write = {16'b0, memory_read_value[15:0]}; // LHU
+                            3'b100: register_file_write = reg3; // LBU
+                            3'b101: register_file_write = reg4; // LHU
                         endcase
 
                         next_state_flag = PC_UPDATE;
@@ -212,8 +223,8 @@ module control_unit (
                         op2 = immediate;
 
                         case(funct3)
-                            3'b000: memory_write = {{24{rs2[7]}}, rs2[7:0]}; // SB
-                            3'b001: memory_write = {{16{rs2[15]}}, rs2[15:0]}; // SH
+                            3'b000: memory_write = mem1; // SB
+                            3'b001: memory_write = mem2; // SH
                             3'b010: memory_write = rs2; // SW
                         endcase
 

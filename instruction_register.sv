@@ -19,10 +19,8 @@ module instruction_register (
 
     logic reset, enable;
 
-    always begin
-        reset = ir_control[1];
-        #1 enable = ir_control[0];
-    end
+    assign reset = ir_control[1];
+    assign enable = ir_control[0];
 
 
     always_ff @(posedge clk) begin

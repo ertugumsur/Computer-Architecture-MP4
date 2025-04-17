@@ -34,9 +34,20 @@ module instruction_decode(
     // Always extract the opcode (used to determine instruction type)
     assign opcode = instruction[6:0];
 
+    logic [4:0] rd_i, rs1_i, rs2_i;
+    logic [2:0] funct3_i;
+    logic [6:0] funct7_i;
+
+    assign rd_i     = instruction[11:7];
+    assign funct3_i = instruction[14:12];
+    assign rs1_i    = instruction[19:15];
+    assign rs2_i    = instruction[24:20];
+    assign funct7_i = instruction[31:25];
+
+
     // Set safe default values to avoid undefined logic
-    always begin
-        #1 rd     = 5'b0;
+    always_comb begin
+        rd     = 5'b0;
         rs1    = 5'b0;
         rs2    = 5'b0;
         funct3 = 3'b0;
@@ -49,11 +60,11 @@ module instruction_decode(
             // opcode: 0110011
             // -----------------------
             7'b0110011: begin
-                rd     = instruction[11:7];
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
-                rs2    = instruction[24:20];
-                funct7 = instruction[31:25];
+                rd     = rd_i;
+                funct3 = funct3_i;
+                rs1    = rs1_i;
+                rs2    = rs2_i;
+                funct7 = funct7_i;
             end
             // -----------------------
             // I-Type: Immediate Arithmetic & Logic
@@ -62,11 +73,11 @@ module instruction_decode(
             // opcode: 0010011
             // -----------------------
             7'b0010011: begin
-                rd     = instruction[11:7];
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
-                rs2    = instruction[24:20];  // for shifts: this is shamt
-                funct7 = instruction[31:25];  // for shifts: distinguishes SRLI/SRAI
+                rd     = rd_i;
+                funct3 = funct3_i;
+                rs1    = rs1_i;
+                rs2    = rs2_i;  // for shifts: this is shamt
+                funct7 = funct7_i;  // for shifts: distinguishes SRLI/SRAI
             end
             // -----------------------
             // I-Type: Loads
@@ -74,9 +85,9 @@ module instruction_decode(
             // opcode: 0000011
             // -----------------------
             7'b0000011: begin
-                rd     = instruction[11:7];
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
+                rd     = rd_i;
+                funct3 = funct3_i;
+                rs1    = rs1_i;
             end
             // -----------------------
             // I-Type: Jump and Link Register
@@ -84,9 +95,9 @@ module instruction_decode(
             // opcode: 1100111
             // -----------------------
             7'b1100111: begin
-                rd     = instruction[11:7];
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
+                rd     = rd_i;
+                funct3 = funct3_i;
+                rs1    = rs1_i;
             end
             // -----------------------
             // S-Type: Stores
@@ -94,9 +105,9 @@ module instruction_decode(
             // opcode: 0100011
             // -----------------------
             7'b0100011: begin
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
-                rs2    = instruction[24:20];
+                funct3 = funct3_i;
+                rs1    = rs1_i;
+                rs2    = rs2_i;
             end
             // -----------------------
             // B-Type: Conditional Branches
@@ -104,9 +115,9 @@ module instruction_decode(
             // opcode: 1100011
             // -----------------------
             7'b1100011: begin
-                funct3 = instruction[14:12];
-                rs1    = instruction[19:15];
-                rs2    = instruction[24:20];
+                funct3 = funct3_i;
+                rs1    = rs1_i;
+                rs2    = rs2_i;
             end
             // -----------------------
             // U-Type: LUI, AUIPC
@@ -115,7 +126,7 @@ module instruction_decode(
             7'b0110111, // LUI
             7'b0010111: // AUIPC
             begin
-                rd = instruction[11:7];
+                rd = rd_i;
             end
             // -----------------------
             // J-Type: Jump and Link
@@ -123,7 +134,7 @@ module instruction_decode(
             // opcode: 1101111
             // -----------------------
             7'b1101111: begin
-                rd = instruction[11:7];
+                rd = rd_i;
             end
             // -----------------------
             // Default: safe zeroes

@@ -26,12 +26,10 @@ module program_counter (
         pc <= 32'b0;
     end
 
-    always begin
-        reset = pc_control[3];
-        enable = pc_control[2];
-        pc_src = pc_control[1];
-        #1 jalr = pc_control[0];
-    end
+    assign reset = pc_control[3];
+    assign enable = pc_control[2];
+    assign pc_src = pc_control[1];
+    assign jalr = pc_control[0];
 
     always_ff @(posedge clk) begin
 
