@@ -11,7 +11,7 @@
 // responsible for orchestrating each stage of the multicycle RV32I processor
 // based on the opcode, funct3, and funct7 fields of the instruction.
 //
-// File Contributor(s): Ertug Umsur
+// File Contributor(s): Ertug Umsur, Ishan Porwal
 //-----------------------------------------------------------------------------
 
 module control_unit (
