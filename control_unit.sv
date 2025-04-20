@@ -11,8 +11,6 @@
 // responsible for orchestrating each stage of the multicycle RV32I processor
 // based on the opcode, funct3, and funct7 fields of the instruction.
 //
-// Used In: All stages
-//
 // File Contributor(s): Ertug Umsur
 //-----------------------------------------------------------------------------
 

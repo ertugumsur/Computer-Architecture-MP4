@@ -16,8 +16,6 @@
 // - B-Type:    BEQ, BNE, BLT, BGE, BLTU, BGEU
 // - R-Type:    ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND
 //
-// Used In: Decode
-//
 // File Contributor(s): Ahan Trivedi
 //-----------------------------------------------------------------------------
 

@@ -7,9 +7,7 @@
 // The testbench is used to verify correct instruction sequencing, register
 // and memory behavior, and overall CPU functionality across multiple cycles.
 //
-// Used In: Simulation
-//
-// File Contributor(s): 
+// File Contributor(s): Ishan Porwal
 //-----------------------------------------------------------------------------
 
 `timescale 10ns/10ns

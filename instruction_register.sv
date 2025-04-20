@@ -5,8 +5,6 @@
 // available throughout the multicycle execution of an instruction.
 // The register updates on the rising edge of the clock when 'enable' is high.
 //
-// Used In: Fetch, Decode, Execute
-//
 // File Contributor(s): Ahan Trivedi
 //-----------------------------------------------------------------------------
 
