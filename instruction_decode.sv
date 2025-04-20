@@ -16,7 +16,7 @@
 // - B-Type:    BEQ, BNE, BLT, BGE, BLTU, BGEU
 // - R-Type:    ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND
 //
-// File Contributor(s): Ahan Trivedi
+// File Contributor(s): Nividh Singh, Ahan Trivedi
 //-----------------------------------------------------------------------------
 
 module instruction_decode(
