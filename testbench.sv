@@ -28,7 +28,7 @@ module testbench;
         .clk(clk)
     );
 
-    defparam testbench.dut.MEM.INIT_FILE = "tests/final_full_test_2.txt";
+    defparam testbench.dut.MEM.INIT_FILE = "test_files/final_full_test_2.txt";
 
     initial begin
         $dumpfile("processor.vcd");
