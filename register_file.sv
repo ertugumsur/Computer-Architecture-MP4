@@ -7,9 +7,7 @@
 // hardwired to 0 and cannot be modified. The register file is used to store
 // temporary values and intermediate results during instruction execution.
 //
-// Used In: Decode, Writeback
-//
-// File Contributor(s): Ertug Umsur, Ishan Porwal
+// File Contributor(s): Ishan Porwal, Ertug Umsur 
 //-----------------------------------------------------------------------------
 
 module RegisterFile #(

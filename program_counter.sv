@@ -7,9 +7,7 @@
 // the PC is updated — usually to PC + 4, or to a new address if the instruction
 // is a branch or jump — so that it points to the next instruction to execute.
 //
-// Used In: Fetch, Execute, Writeback
-//
-// File Contributor(s): Ertug Umsur, Ishan Porwal
+// File Contributor(s): Ishan Porwal, Ertug Umsur 
 //-----------------------------------------------------------------------------
 
 module program_counter (
