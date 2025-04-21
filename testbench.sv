@@ -45,12 +45,12 @@ module testbench;
         // Run long enough to execute program
         #2048;
 
-        //$display("\n==== Final Register File Dump ====");
+        $display("\n==== Final Register File Dump ====");
         for (int i = 0; i < 32; i++) begin
             $display("x%0d = 0x%08h", i, dut.REGFILE.regs[i]);
         end
 
-        //$display("\n==== Simulation Complete ====");
+        $display("\n==== Simulation Complete ====");
         $finish;
     end
 

@@ -52,11 +52,17 @@ module control_unit (
     typedef enum logic[1:0] {
         EXECUTE,
         FETCH,
+        MEMORY_PULL,
         PC_UPDATE
     } fsm_state_t;
 
     fsm_state_t next_state_flag;
-    fsm_state_t current_state = FETCH;
+    fsm_state_t current_state = MEMORY_PULL;
+    logic second_stage_flag;
+    
+    initial begin
+        second_stage_flag = 1'b0;
+    end
 
     logic [6:0] imm1;
     logic [31:0] reg1, reg2, reg3, reg4, mem1, mem2;
@@ -73,7 +79,7 @@ module control_unit (
         // default assignments
         pc_control = 4'b0000;
         ir_control = 2'b00;
-        memory_funct3 = 3'b000;
+        memory_funct3 = 3'b010;
         alu_control = 4'b0000;
         register_write_en = 1'b0;
         memory_write_en = 1'b0;
@@ -82,7 +88,7 @@ module control_unit (
         memory_read_address = 32'b0;
         register_file_write = 32'b0;
         op2 = 32'b0;
-        next_state_flag = current_state;
+        next_state_flag = PC_UPDATE;
 
         case (current_state)
             PC_UPDATE: begin
@@ -99,13 +105,29 @@ module control_unit (
                 register_file_write  = 32'b0;
                 op2                  = 32'b0;
 
+                next_state_flag      = MEMORY_PULL;
+            end
+
+            MEMORY_PULL: begin
+                pc_control           = 4'b0000;
+                ir_control           = 2'b00;
+                alu_control          = 4'b0000;
+
+                register_write_en    = 1'b0;
+                memory_write_en      = 1'b0;
+
+                memory_write         = 32'b0;
+                memory_write_address = 32'b0;
+                memory_read_address  = pc;
+                register_file_write  = 32'b0;
+                op2                  = 32'b0;
+
                 next_state_flag      = FETCH;
             end
             
             FETCH: begin
                 pc_control = 4'b0000;
                 ir_control = 2'b01;
-                memory_funct3 = 3'b010;
                 alu_control = 4'b0000;
 
                 register_write_en = 1'b0;
@@ -113,7 +135,7 @@ module control_unit (
 
                 memory_write = 32'b0;
                 memory_write_address = 32'b0;
-                memory_read_address = pc;
+                memory_read_address = 32'b0;
                 register_file_write = 32'b0;
                 op2 = 32'b0;
 
@@ -159,6 +181,7 @@ module control_unit (
                     end
 
                     7'b0010011: begin // I-Type ALU Immediate
+                        memory_funct3 = funct3;
                         pc_control = 4'b0000;
                         ir_control = 2'b00;
 
@@ -186,30 +209,54 @@ module control_unit (
                     end
 
                     7'b0000011: begin // I-Type Load
-                        pc_control = 4'b0000;
-                        ir_control = 2'b00;
-                        alu_control = 4'b0000;
+                        if(second_stage_flag == 1'b0) begin
+                            memory_funct3 = funct3;
+                            pc_control = 4'b0000;
+                            ir_control = 2'b00;
+                            alu_control = 4'b0000;
 
-                        register_write_en = 1'b1;
-                        memory_write_en = 1'b0;
+                            register_write_en = 1'b0;
+                            memory_write_en = 1'b0;
 
-                        memory_write = 32'b0;
-                        memory_write_address = 32'b0;
-                        memory_read_address = alu_result;
-                        op2 = immediate;
+                            memory_write = 32'b0;
+                            memory_write_address = 32'b0;
+                            memory_read_address = alu_result;
+                            op2 = immediate;
 
-                        case(funct3)
-                            3'b000: register_file_write = reg1; // LB
-                            3'b001: register_file_write = reg2; // LH
-                            3'b010: register_file_write = memory_read_value; // LW
-                            3'b100: register_file_write = reg3; // LBU
-                            3'b101: register_file_write = reg4; // LHU
-                        endcase
+                            second_stage_flag = 1;
 
-                        next_state_flag = PC_UPDATE;
+                            next_state_flag = EXECUTE;
+
+                        end else if(second_stage_flag == 1'b1) begin
+                            memory_funct3 = funct3;
+                            pc_control = 4'b0000;
+                            ir_control = 2'b00;
+                            alu_control = 4'b0000;
+
+                            register_write_en = 1'b1;
+                            memory_write_en = 1'b0;
+
+                            memory_write = 32'b0;
+                            memory_write_address = 32'b0;
+                            memory_read_address = 32'b0;
+                            op2 = 32'b0;
+
+                            case(funct3)
+                                3'b000: register_file_write = reg1; // LB
+                                3'b001: register_file_write = reg2; // LH
+                                3'b010: register_file_write = memory_read_value; // LW
+                                3'b100: register_file_write = reg3; // LBU
+                                3'b101: register_file_write = reg4; // LHU
+                            endcase
+
+                            second_stage_flag = 0;
+
+                            next_state_flag = PC_UPDATE;
+                        end
                     end
 
                     7'b0100011: begin // S-Type Store
+                        memory_funct3 = funct3;
                         pc_control = 4'b0000;
                         ir_control = 2'b00;
                         alu_control = 4'b0000;
@@ -233,6 +280,7 @@ module control_unit (
 
                     7'b1100011: begin // B-Type Branch
                         if (branch_taken) begin
+                            memory_funct3 = funct3;
                             pc_control = 4'b0110;
                             ir_control = 2'b10;
                             alu_control = 4'b0000;
@@ -246,8 +294,9 @@ module control_unit (
                             register_file_write = 32'b0;
                             op2 = 32'b0;
 
-                            next_state_flag = FETCH;
+                            next_state_flag = MEMORY_PULL;
                         end else begin
+                            memory_funct3 = funct3;
                             pc_control = 4'b0000;
                             ir_control = 2'b00;
                             alu_control = 4'b0000;
@@ -266,6 +315,7 @@ module control_unit (
                     end
 
                     7'b1101111: begin // JAL
+                        memory_funct3 = funct3;
                         pc_control = 4'b0110;
                         ir_control = 2'b00;
                         alu_control = 4'b0000;
@@ -279,10 +329,11 @@ module control_unit (
                         register_file_write = pc + 3'b100;
                         op2 = 32'b0;
 
-                        next_state_flag = FETCH;
+                        next_state_flag = MEMORY_PULL;
                     end
                         
                     7'b1100111: begin // JALR
+                        memory_funct3 = funct3;
                         pc_control = 4'b0101;
                         ir_control = 2'b00;
                         alu_control = 4'b0000;
@@ -296,10 +347,11 @@ module control_unit (
                         register_file_write = pc + 3'b100;
                         op2 = 32'b0;
 
-                        next_state_flag = FETCH;
+                        next_state_flag = MEMORY_PULL;
                     end
 
                     7'b0110111: begin // LUI
+                        memory_funct3 = funct3;
                         pc_control = 4'b0000;
                         ir_control = 2'b00;
                         alu_control = 4'b0000;
@@ -317,6 +369,7 @@ module control_unit (
                     end
 
                     7'b0010111: begin // AUIPC
+                        memory_funct3 = funct3;
                         pc_control = 4'b0000;
                         ir_control = 2'b00;
                         alu_control = 4'b0000;
