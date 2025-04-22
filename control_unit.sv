@@ -47,7 +47,8 @@ module control_unit (
     output logic [2:0] memory_funct3
 );
 
-    typedef enum logic[1:0] {
+    typedef enum logic[2:0] {
+        SECOND_EXECUTE,
         EXECUTE,
         FETCH,
         MEMORY_PULL,
@@ -56,11 +57,6 @@ module control_unit (
 
     fsm_state_t next_state_flag;
     fsm_state_t current_state = MEMORY_PULL;
-    logic second_stage_flag;
-    
-    initial begin
-        second_stage_flag = 1'b0;
-    end
 
     logic [6:0] imm1;
     logic [31:0] reg1, reg2, reg3, reg4, mem1, mem2;
@@ -207,50 +203,20 @@ module control_unit (
                     end
 
                     7'b0000011: begin // I-Type Load
-                        if(second_stage_flag == 1'b0) begin
-                            memory_funct3 = funct3;
-                            pc_control = 4'b0000;
-                            ir_control = 2'b00;
-                            alu_control = 4'b0000;
+                        memory_funct3 = funct3;
+                        pc_control = 4'b0000;
+                        ir_control = 2'b00;
+                        alu_control = 4'b0000;
 
-                            register_write_en = 1'b0;
-                            memory_write_en = 1'b0;
+                        register_write_en = 1'b0;
+                        memory_write_en = 1'b0;
 
-                            memory_write = 32'b0;
-                            memory_write_address = 32'b0;
-                            memory_read_address = alu_result;
-                            op2 = immediate;
+                        memory_write = 32'b0;
+                        memory_write_address = 32'b0;
+                        memory_read_address = alu_result;
+                        op2 = immediate;
 
-                            second_stage_flag = 1;
-
-                            next_state_flag = EXECUTE;
-
-                        end else if(second_stage_flag == 1'b1) begin
-                            memory_funct3 = funct3;
-                            pc_control = 4'b0000;
-                            ir_control = 2'b00;
-                            alu_control = 4'b0000;
-
-                            register_write_en = 1'b1;
-                            memory_write_en = 1'b0;
-
-                            memory_write = 32'b0;
-                            memory_write_address = 32'b0;
-                            memory_read_address = 32'b0;
-                            op2 = 32'b0;
-
-                            case(funct3)
-                                3'b000: register_file_write = reg1; // LB
-                                3'b001: register_file_write = reg2; // LH
-                                3'b010: register_file_write = memory_read_value; // LW
-                                3'b100: register_file_write = reg3; // LBU
-                                3'b101: register_file_write = reg4; // LHU
-                            endcase
-
-                            second_stage_flag = 0;
-
-                            next_state_flag = PC_UPDATE;
-                        end
+                        next_state_flag = SECOND_EXECUTE;
                     end
 
                     7'b0100011: begin // S-Type Store
@@ -384,6 +350,31 @@ module control_unit (
                         next_state_flag = PC_UPDATE;
                     end
                 endcase
+            end
+
+            SECOND_EXECUTE: begin
+                memory_funct3 = funct3;
+                pc_control = 4'b0000;
+                ir_control = 2'b00;
+                alu_control = 4'b0000;
+
+                register_write_en = 1'b1;
+                memory_write_en = 1'b0;
+
+                memory_write = 32'b0;
+                memory_write_address = 32'b0;
+                memory_read_address = 32'b0;
+                op2 = 32'b0;
+
+                case(funct3)
+                    3'b000: register_file_write = reg1; // LB
+                    3'b001: register_file_write = reg2; // LH
+                    3'b010: register_file_write = memory_read_value; // LW
+                    3'b100: register_file_write = reg3; // LBU
+                    3'b101: register_file_write = reg4; // LHU
+                endcase
+
+                next_state_flag = PC_UPDATE;
             end
         endcase
     end
