@@ -1,15 +1,20 @@
 //-----------------------------------------------------------------------------
 // Main Control Unit
 //
-// This module implements a finite state machine (FSM) that cycles through three
-// stages: EXECUTE, FETCH, and PC_UPDATE. It generates all control signals
-// needed to operate the processor datapath for one instruction at a time,
-// including ALU operation selection, register file writes, program counter
-// updates, memory read/write control, and instruction register loading.
-// It also sets the memory_funct3 signal to 3'b010 during instruction fetches,
-// and to the instruction's funct3 value during memory accesses. This unit is
-// responsible for orchestrating each stage of the multicycle RV32I processor
-// based on the opcode, funct3, and funct7 fields of the instruction.
+// This module implements a finite state machine (FSM) that cycles through five
+// stages: PC_UPDATE, MEMORY_PULL, FETCH, EXECUTE, and SECOND_EXECUTE. It 
+// generates control signals for ALU operations, register writes, memory 
+// accesses, program counter updates, and instruction register loading.
+//
+// PC_UPDATE updates the program counter. MEMORY_PULL sets the memory address 
+// for fetching instructions. FETCH loads the instruction into the register. 
+// EXECUTE decodes and processes instructions (R-type, I-type, load, store, 
+// branch, JAL, JALR, LUI, AUIPC). SECOND_EXECUTE completes memory loads by 
+// writing the fetched data to the register.
+//
+// The memory_funct3 signal is set to 3'b010 during instruction fetches and 
+// to funct3 during memory accesses. The unit controls the processor’s datapath 
+// based on opcode, funct3, and funct7.
 //
 // File Contributor(s): Ertug Umsur, Ishan Porwal
 //-----------------------------------------------------------------------------
