@@ -1,12 +1,16 @@
 //-----------------------------------------------------------------------------
-// Top-Level Module
+// Top-Level Processor Module
 //
-// Coordinates the multicycle processor datapath. Each instruction is executed
-// over multiple clock cycles: Fetch, Decode, Execute, Memory Access, and
-// Writeback. This module instantiates and wires together all major components,
-// including the control unit, ALU, register file, memory, and PC.
+// Integrates and coordinates the multicycle RV32I processor datapath. 
+// The processor operates over five distinct stages driven by the control unit's 
+// finite state machine (FSM): PC_UPDATE, MEMORY_PULL, FETCH, EXECUTE, and 
+// SECOND_EXECUTE. Each stage configures datapath components, including the 
+// program counter (PC), instruction register (IR), ALU, memory, and register 
+// file, to execute instructions correctly.
 //
-// Used In: All stages
+// This module wires together all major components, including the control unit, 
+// ALU, branch logic, immediate generator, instruction decoder, memory, register 
+// file, and program counter.
 //
 // File Contributor(s): Ertug Umsur, Ishan Porwal, Ahan Trivedi, Nividh Singh
 //-----------------------------------------------------------------------------
