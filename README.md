@@ -1,5 +1,11 @@
 # 32-bit RISC-V Processor (Miniproject 4)
 
+## Important Note
+
+This repository is part of a **group project** developed by [@ertugumsur](https://github.com/ertugumsur), [@ishanporwal](https://github.com/ishanporwal), [@NividhSingh](https://github.com/NividhSingh), and [@ahan-trivedi2](https://github.com/ahan-trivedi2).  
+
+It is a copy of the repository originally hosted under [@ahan-trivedi2](https://github.com/ahan-trivedi2), included here to showcase the project and contributions by all team members.
+
 This project implements a multi-cycle, unpipelined 32-bit RISC-V processor using SystemVerilog and the OSS CAD Suite. It was developed as part of the Computer Architecture course at Olin College of Engineering (Spring 2025) by Ahan Trivedi, Ishan Porwal, Nividh Singh, and Ertug Umsur.
 
 ## Overview
